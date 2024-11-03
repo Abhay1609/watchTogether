@@ -11,16 +11,18 @@ class RoomManger{
         const user=await User.findById(userId);
         const room=await Rooms.find({roomName:roomName})
         if(!user){
-            return {"message":"User Not found"}
+            return {statusCode:404,"message":"User Not found"}
         }
-        if(!room){
-            return {"message":"Room Not found"}
+        
+        if(room.length){
+            console.log(room,user,userId)
+            return {statusCode:404,"message":"Room already present"}
         }
 
         const newRoomData={
             roomName,
-            admin,
-            members:[admin],
+            admin:userId,
+            members:[userId],
             history:[],
             chat:[],
             status:false,
@@ -31,28 +33,32 @@ class RoomManger{
         try{
 
             const saveRoom=await newRoom.save();
-            return saveRoom
+            return {statusCode:200,message:saveRoom}
         }
         catch(error){
-            return error
+            return {statusCode:500,message:error}
         }
 
 
 
     }
     async isUserInRoom(roomId,userId){
+        console.log(userId,roomId)
         const room=await Rooms.findOne({
             _id:roomId,
             members:{$in:[userId]}
         }
+       
 
         )
+  
         return room;
     }
     async addMember(roomId,userId){
-    
-        if(this.isUserInRoom(roomId,userId)){
-            return {"message":"User is not in Room"}
+        const room=await this.isUserInRoom(roomId,userId)
+       
+        if(room){
+            return {statusCode:200,"message":room}
         }
         try{
         const room=await Rooms.findByIdAndUpdate(
@@ -62,13 +68,13 @@ class RoomManger{
 
         )
         if(room){
-            return room
+            return {statusCode:200,message:room}
         }
         else{
-            return {"message":"Internal Server Error"}
+            return {statusCode:500,"message":"Internal Server Error"}
         }}
         catch(err){
-            return err
+            return {statusCode:500,message:err}
         }
         
 

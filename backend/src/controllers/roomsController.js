@@ -1,17 +1,26 @@
 const RoomManger = require("../serviceClass/roomsService");
 
 const RoomMangerinstance=new RoomManger()
-function createRoom(req,res){
-    const roomName=req.body;
+async function createRoom(req,res){
+    const roomName=req.body.roomName;
     const userId=req.userId;
-    const room=RoomMangerinstance.createRoom(userId,roomName)
-    return room.id?room.id:room
+
+    const room=await RoomMangerinstance.createRoom(userId,roomName)
+    if(room.statusCode===200){
+        res.send({"message":room.message._id})
+    }else{
+        res.send(room)
+    }
+    
 
 
 }
-function addUserToRoom(req,res){
-    const roomId=req.roomId;
+async function addUserToRoom(req,res){
+    const roomId=req.body.roomId;
     const userId=req.userId;
-    const room=RoomMangerinstance.addMember(userId,roomId)
+    console.log(roomId,userId)
+    const room=await RoomMangerinstance.addMember(roomId,userId)
+    
+    res.send(room)
 }
-module.exports = createRoom
+module.exports = {createRoom,addUserToRoom}

@@ -1,5 +1,6 @@
 
 
+const e = require("express")
 const messageEnum = require("../message.js")
 const User=require("../models/userModels.js")
 
@@ -11,7 +12,7 @@ class UserManagement{
      async addUser(name,password){
         const existinguser=await User.findOne({name:name})
         if(existinguser){
-            return conn.send("User already exist")
+            return { "statusCode":505,"message":"User already Exist"}
         }
         const newUser=new User({
             name,
@@ -22,16 +23,17 @@ class UserManagement{
         try{
             const saveUser=await newUser.save();
             if(saveUser){
-               return saveUser
+               return {"statusCode":200,"message":saveUser}
             }else{
-            return "error"}
+            return {"statusCode":505,"message":"error"} }
         }
         catch(error){
-            return error
+            return {"statusCode":505,"message":error}
         }
 
      }
      async loginUser(name,password){
+        console.log(name,password,"login")
         const authenticateUser=await User.findOne({
             name,
             password
